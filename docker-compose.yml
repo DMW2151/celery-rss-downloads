@@ -1,0 +1,28 @@
+# docker-compose.yml
+version: '3'
+
+services:
+
+  backend:
+    restart: always
+    image: 'mongo'
+    ports:
+      - "27017-27019:27017-27019"
+    env_file:
+      - ./mongo/user_setup_vars.env
+      
+  master_node:
+    build: ./
+    tty: true
+    command:
+      - 'celery -A proj --app=proj.celery_cfg'
+    volumes:
+      - "workerdata:/proj/data"
+      - "./proj:/proj"
+    env_file:
+      - ./mongo/user_setup_vars.env
+    links:
+      - "backend"
+          
+volumes:
+  workerdata:
