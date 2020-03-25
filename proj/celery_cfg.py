@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import Celery
 from celery.execute import send_task
 from celery.schedules import crontab
-
+from kombu import Queue
 
 BROKER_URL = 'mongodb://rss_backend_1:27017/jobs'
 BACKEND_URL = 'mongodb://rss_backend_1:27017/backend'
@@ -13,14 +13,19 @@ app = Celery('proj',
     backend=BACKEND_URL,
 	include=['proj.tasks']
 )
+app.conf.task_default_queue = 'default'
 
 app.conf.update(
 	task_serializer='json',
 	accept_content=['json'],  # Ignore other content
 	result_serializer='json',
 	timezone='US/Eastern',
-	enable_utc=True,
+	enable_utc=True,    
 )
+
+app.conf.task_routes = {'proj.tasks.download_response': {'queue': 'downloads'}}
+
+
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):

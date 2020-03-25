@@ -49,7 +49,7 @@ class MongoDBConnection(object):
     def __init__(self, params=None):
         if not params: # NOTE: Default Connection for Now...
             params = {
-                'host': 'db',
+                'host': 'backend',
                 'username': os.environ.get('MONGO_USER'),
                 'password': os.environ.get('MONGO_USER_PW'),
                 'authSource': os.environ.get('MONGO_AUTH_SRC_DB')

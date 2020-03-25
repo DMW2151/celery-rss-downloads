@@ -64,7 +64,7 @@ def insert_feed(feed_data, connection_params=None, db_name='audio'):
             pass
 
 @app.task
-def get_recent_episodes(connection_params=None, db_name='audio', delta_min=15):
+def get_recent_episodes(connection_params=None, db_name='audio', delta_min=60):
     '''
     Query Mongo and get record of episodes recently added to the episodes collection
     args:
@@ -140,7 +140,7 @@ def download_response(url, fn_alias=None, data_dir='./data'):
         with requests.get(url, stream=True) as r:
             with open(local_filename, 'wb') as f:
                 shutil.copyfileobj(r.raw, f)
-    else: #Handle
+    else: # Handle
         pass 
 
 # Master Scheduled Tasks

@@ -5,7 +5,7 @@ COPY ./proj ./proj
 
 RUN pip3 install --no-cache-dir -r ./proj/requirements.txt  
 
-# Run Beat
-RUN celery multi start w1 -A proj -l debug --app=proj.celery_cfg
-RUN celery -A proj worker -l info --app=proj.celery_cfg 
+# Comment out to Debug, run single node in container w: 
+# `celery -A proj worker -l debug --app=proj.celery_cfg`
+ENTRYPOINT ['celery', 'multi', 'start', 'w1', '-A', 'proj', '-l', 'info', '--app=proj.celery_cfg']
 

@@ -14,13 +14,15 @@ services:
   master_node:
     build: ./
     tty: true
-    command:
-      - 'celery -A proj --app=proj.celery_cfg'
     volumes:
       - "workerdata:/proj/data"
       - "./proj:/proj"
+    command:  # Comment out to debug && start beat in container...
+      ['celery', '-A', 'proj', 'beat', '-s' , '/celerybeat-schedule',  '--app=proj.celery_cfg']
     env_file:
       - ./mongo/user_setup_vars.env
+    depends_on:
+      - backend
     links:
       - "backend"
           
