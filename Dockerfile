@@ -5,7 +5,6 @@ COPY ./proj ./proj
 
 RUN pip3 install --no-cache-dir -r ./proj/requirements.txt  
 
-# Comment out to Debug, run single node in container w: 
-# `celery -A proj worker -l debug --app=proj.celery_cfg -Q=download`
-ENTRYPOINT ['celery', 'multi', 'start', 'w1', '-A', 'proj', '-l', 'info', '--app=proj.celery_cfg']
+#Comment out to Debug, run single node in container w: 
+ENTRYPOINT ["celery", "-A", "proj",  "worker", "-l", "info", "--app=proj.celery_cfg", "-Q=default,downloads"]
 

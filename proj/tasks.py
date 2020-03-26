@@ -74,8 +74,17 @@ def get_recent_episodes(connection_params=None, db_name='audio', delta_min=60):
         delta_min: int: NOTE: Please Remove Ideally here we will check 
             all episodes "since last execution of `call_update_episode_stash.s()`"
     returns:
-        list[str]: list of target urls, public download location of target files
+        list[dict]: list of dict containg target urls + alias
     '''
+    
+    def parse_src_entry(d):
+        '''Parse RSS Feed Entry - Assumes Uniformity of Labels'''
+        return {
+            'url': d.get('enclosure'),
+            'alias': d.get('title'), 
+            'src': d.get('source_feed', 'misc')
+        }
+
     # Query Episodes ingested in last N-Minutes by using ObjectID date property
     # See NOTE in Docstring...
     qry_lower_bnd = (datetime.datetime.now() - datetime.timedelta(minutes=delta_min))
@@ -88,11 +97,10 @@ def get_recent_episodes(connection_params=None, db_name='audio', delta_min=60):
         
         recent_episodes = episodes.find(
                 {"enclosure" : { '$exists' : True },
-                "_id" : { '$gte' : qry_id }},       
-                {'enclosure': 1}
+                "_id" : { '$gte' : qry_id }},
         )
-
-    return [obj.get('enclosure') for obj in recent_episodes]
+    
+    return [parse_src_entry(obj) for obj in recent_episodes]
 
 @app.task(ignore_result=True)
 def insert_episodes_data(target_url, connection_params=None, db_name='audio'):
@@ -119,8 +127,10 @@ def insert_episodes_data(target_url, connection_params=None, db_name='audio'):
         db = c.connection[db_name]
         episodes = db.episodes
 
+        # Single insert performance > batch insert, almost all feeds 
+        # fail batch insert on dupl key error and fall back to single inserts
         for ep in f:
-            try: # Performance improved over Batch Insert; almost all feeds fail batch insert on dupl key error
+            try: 
                 _id = episodes.insert_one(ep).inserted_id
                 ids.append(_id)
             except pymongo.errors.DuplicateKeyError: #Ignore Dupl
@@ -129,13 +139,25 @@ def insert_episodes_data(target_url, connection_params=None, db_name='audio'):
     
 # Download Tasks
 @app.task(ignore_result=True)
-def download_response(url, fn_alias=None, data_dir='./data'):
-
+def download_response(episode_data):
+    '''
+    Download target file, only function that matters...
+    args:
+        episode_data:
+            url: str: download target's URL
+            alias: str: download target's local filename
+            data_dir: str: download target's local directory
+    '''
+    url, alias, src = episode_data.get('url', ''), episode_data.get('alias'), episode_data.get('src')
+    
+    data_dir = os.path.join('audio', src)
     local_filename = os.path.join(
             data_dir,
-            fn_alias if fn_alias is not None else url.split('/')[-1]
+            alias if alias is not None else url.split('/')[-1]
     )
-    
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+
     if not os.path.exists(local_filename):
         with requests.get(url, stream=True) as r:
             with open(local_filename, 'wb') as f:
@@ -173,3 +195,5 @@ def get_new_episodes():
     '''
     process_list = (get_recent_episodes.s() | dmap.s(download_response.s()))
     process_list.apply_async()
+
+

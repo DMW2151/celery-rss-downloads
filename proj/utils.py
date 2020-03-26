@@ -22,9 +22,13 @@ def parse_rss_feed(url):
         pass
 
     root = ET.fromstring(r.content)
+    
+    feed_title_elem = root.find('.//channel/title') 
+    feed_title = feed_title_elem.text if feed_title_elem is not None else None
+
     outp = []
     for obj in root.findall('.//channel/item'):
-        d = dict()
+        d = {'source_feed': feed_title}
         for elem in list(obj):
             if not elem.text:
                 alt_value = elem.get('url') or elem.get('href')                

@@ -17,8 +17,7 @@ services:
     volumes:
       - "workerdata:/proj/data"
       - "./proj:/proj"
-    command:  # Comment out to debug && start beat in container...
-      ['celery', '-A', 'proj', 'beat', '-s' , '/celerybeat-schedule',  '--app=proj.celery_cfg', '-Q=downloads,default']
+
     env_file:
       - ./mongo/user_setup_vars.env
     depends_on:
