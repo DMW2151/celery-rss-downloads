@@ -25,17 +25,15 @@ app.conf.update(
 
 app.conf.task_routes = {'proj.tasks.download_response': {'queue': 'downloads'}}
 
-
-
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     
-    # Check Feeds Every 5 mins - Update Sets
+    # Check Feeds Every 1 mins - Update Sets
     sender.add_periodic_task(
         60.0, call_update_episode_stash.s(),
     )
 
-    # Download Every 5 mins - Update Sets 
+    # Download Every 1 mins - Update Sets 
     #  NOTE: OFFSET THIS SO `call_update_episode_stash` and 
     # `call_get_new_episodes` run back to back - or chain them...
     sender.add_periodic_task(

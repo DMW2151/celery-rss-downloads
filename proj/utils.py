@@ -19,7 +19,7 @@ def parse_rss_feed(url):
     try: 
         r.raise_for_status()
     except requests.exceptions.HTTPError as e: 
-        pass # Handle: Log this
+        pass
 
     root = ET.fromstring(r.content)
     outp = []
@@ -64,18 +64,3 @@ class MongoDBConnection(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.connection.close()
 
-
-# def mongo_connection(connection_params=None):
-#     '''Doc'''
-#     if not connection_params:
-#         # NOTE: Default Connection for Now...
-#         connection_params = {
-#             'host': 'db',
-#             'username': os.environ.get('MONGO_USER'),
-#             'password': os.environ.get('MONGO_USER_PW'),
-#             'authSource': os.environ.get('MONGO_AUTH_SRC_DB')
-#         }
-
-#         client = MongoDBConnection(connection_params)
-                
-#     return client

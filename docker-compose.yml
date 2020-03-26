@@ -7,7 +7,7 @@ services:
     restart: always
     image: 'mongo'
     ports:
-      - "27017-27019:27017-27019"
+      - "27017:27017"
     env_file:
       - ./mongo/user_setup_vars.env
       
@@ -18,7 +18,7 @@ services:
       - "workerdata:/proj/data"
       - "./proj:/proj"
     command:  # Comment out to debug && start beat in container...
-      ['celery', '-A', 'proj', 'beat', '-s' , '/celerybeat-schedule',  '--app=proj.celery_cfg']
+      ['celery', '-A', 'proj', 'beat', '-s' , '/celerybeat-schedule',  '--app=proj.celery_cfg', '-Q=downloads,default']
     env_file:
       - ./mongo/user_setup_vars.env
     depends_on:
