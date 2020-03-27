@@ -141,8 +141,8 @@ def insert_episodes_data(target_url, connection_params=None, db_name='audio'):
     return ids
     
 # Download Tasks
-@app.task(ignore_result=True)
-def download_response(episode_data):
+@app.task(bind=True, ignore_result=True)
+def download_response(self, episode_data):
     '''
     Download target file, only function that matters...
     args:
@@ -163,9 +163,9 @@ def download_response(episode_data):
 
     try:
         if not os.path.exists(local_filename):
-        with requests.get(url, stream=True) as r:
-            with open(local_filename, 'wb') as f:
-                shutil.copyfileobj(r.raw, f)
+            with requests.get(url, stream=True) as r:
+                with open(local_filename, 'wb') as f:
+                   shutil.copyfileobj(r.raw, f)
 
     except Exception as exc:
         # overrides the default delay to retry after 1 minute

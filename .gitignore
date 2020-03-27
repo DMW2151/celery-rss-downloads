@@ -1,4 +1,5 @@
-/.vscode
+.vscode/
+.DS_Store
 /proj/__pycache__
 /env
 /mongo/user_setup_vars.env
