@@ -12,6 +12,7 @@ from celery.utils.log import get_task_logger
 import  time
 import datetime
 
+import re
 import proj.utils as utils
 from proj.celery_cfg import app
 import pymongo
@@ -79,9 +80,11 @@ def get_recent_episodes(connection_params=None, db_name='audio', delta_min=60):
     
     def parse_src_entry(d):
         '''Parse RSS Feed Entry - Assumes Uniformity of Labels'''
+        pod_title = re.sub('[^0-9a-zA-Z]+', '_', d.get('title', ''))
+
         return {
             'url': d.get('enclosure'),
-            'alias': d.get('title'), 
+            'alias': pod_title, 
             'src': d.get('source_feed', 'misc')
         }
 
@@ -150,7 +153,7 @@ def download_response(episode_data):
     '''
     url, alias, src = episode_data.get('url', ''), episode_data.get('alias'), episode_data.get('src')
     
-    data_dir = os.path.join('audio', src)
+    data_dir = os.path.join('/rss_library', src)
     local_filename = os.path.join(
             data_dir,
             alias if alias is not None else url.split('/')[-1]
@@ -158,12 +161,15 @@ def download_response(episode_data):
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
-    if not os.path.exists(local_filename):
+    try:
+        if not os.path.exists(local_filename):
         with requests.get(url, stream=True) as r:
             with open(local_filename, 'wb') as f:
                 shutil.copyfileobj(r.raw, f)
-    else: # Handle
-        pass 
+
+    except Exception as exc:
+        # overrides the default delay to retry after 1 minute
+        raise self.retry(exc=exc, countdown=60, max_retries=3)
 
 # Master Scheduled Tasks
 @app.task

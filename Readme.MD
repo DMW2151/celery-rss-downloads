@@ -4,15 +4,44 @@
 Run Celery to manage downloads of files posted to some RSS feeds, use MongoDB as a message broker and a backend for posting target URLs.
 
 ## Usage
+
+## Prelim
+
+mount volume to rpi
 ```bash
-## Start Services - Mongo + Celery
+sudo mkdir /media/easystore &&\
+sudo chown -R pi:pi /media/easystore &&\
+sudo mount /dev/sdb2 /media/easystore -o uid=pi,gid=pi
+```
+
+## Use
+
+Start Services - Mongo + Celery
+
+```bash
 $ docker-compose up --build
 ```
 
-Start beat...
+Copy in Mongo DB Auth Scripts...just to save from customizing a new dockerfile on top of mongo-rpi image
+run setup script (db_user_setup.sh), allows auth from other container w. identical credentials
+
 ```bash
-$ celery -A proj beat --app=proj.celery_cfg
+cd ~/RSS && docker cp ./mongo/db_user_setup.sh rss_backend_1:/db_user_setup.sh
+docker exec -ti rss_backend_1 bash /db_user_setup.sh
 ```
+
+Exec into rss_master_node_1 and start celery beat
+```bash
+$ docker exec -ti rss_master_node_1 bash -c 'celery -A proj beat --app=proj.celery_cfg'
+```
+
+```bash
+docker exec -ti rss_backend_1 mongo audio
+
+> db.feeds.insert({'url': 'https://www.espn.com/espnradio/feeds/rss/podcast.xml/_/id/25869711'})
+```
+
+
 
 ## TODO
 

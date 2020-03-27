@@ -4,9 +4,13 @@ from celery import Celery
 from celery.execute import send_task
 from celery.schedules import crontab
 from kombu import Queue
+import os
 
-BROKER_URL = 'mongodb://rss_backend_1:27017/jobs'
-BACKEND_URL = 'mongodb://rss_backend_1:27017/backend'
+BROKER_URL = os.environ.get('MONGO_BROKER_URL', 
+    'mongodb://rss_backend_1:27017/jobs')
+    
+BACKEND_URL = os.environ.get('MONGO_BACKEND_URL', 
+    'mongodb://rss_backend_1:27017/backend')
 
 app = Celery('proj',
 	broker=BROKER_URL, 

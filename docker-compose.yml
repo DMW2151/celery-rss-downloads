@@ -4,26 +4,26 @@ version: '3'
 services:
 
   backend:
-    restart: always
-    image: 'mongo'
-    ports:
-      - "27017:27017"
-    env_file:
-      - ./mongo/user_setup_vars.env
-      
+     restart: always
+     tty: true
+     image: andresvidal/rpi3-mongodb3
+     ports:
+       - "27017:27017"
+     env_file:
+       - ./mongo/user_setup_vars.env
+     # repair db on restart && relauch in repaired state...
+     command: bash -c 'mongod --repair && mongod'
+   
   master_node:
     build: ./
     tty: true
     volumes:
-      - "workerdata:/proj/data"
+      - "/mediaES:/rss_library"
       - "./proj:/proj"
-
     env_file:
       - ./mongo/user_setup_vars.env
     depends_on:
       - backend
     links:
-      - "backend"
-          
-volumes:
-  workerdata:
+      - "backend:rss_backend_1"
+              
