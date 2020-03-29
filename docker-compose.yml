@@ -7,23 +7,40 @@ services:
      restart: always
      tty: true
      image: andresvidal/rpi3-mongodb3
-     ports:
-       - "27017:27017"
+     expose:
+       - "27017"
      env_file:
-       - ./mongo/user_setup_vars.env
+       - ./mongo/mongo_setup_vars.env
      # repair db on restart && relauch in repaired state...
      command: bash -c 'mongod --repair && mongod'
    
   master_node:
+    # Build @ top level to copy in full proj...
     build: ./
     tty: true
     volumes:
       - "/mediaES:/rss_library"
       - "./proj:/proj"
     env_file:
-      - ./mongo/user_setup_vars.env
+      - ./mongo/worker_setup_vars.env
     depends_on:
       - backend
     links:
       - "backend:rss_backend_1"
+    
+  api:
+     restart: always
+     build: ./api 
+     tty: true
+     command: python3 '/app/flaskapp.py'
+     env_file:
+        - ./mongo/user_setup_vars.env
+     ports:
+        - "2151:5000"
+     links:
+       - "backend:rss_backend_1"
+     depends_on:
+        - backend
+     volumes:
+       - "./api/:/app"
               

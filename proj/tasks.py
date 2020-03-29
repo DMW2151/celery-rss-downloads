@@ -1,4 +1,3 @@
-# Author: Dustin Wilson
 from __future__ import absolute_import, unicode_literals
 
 import os
@@ -17,28 +16,30 @@ import proj.utils as utils
 from proj.celery_cfg import app
 import pymongo
 from bson.objectid import ObjectId
+from dateutil.parser import parse as date_parse
 
 logger = get_task_logger(__name__)
 
 # DB Interaction Tasks
 @app.task
-def get_feeds(connection_params=None, db_name='audio'):
+def get_feeds(connection_params=None):
     '''
     Query Mongo and dump active feeds Collection
     '''
     c = utils.MongoDBConnection()
+    db_name = os.environ.get('MONGO_DB')
     with c:
         db = c.connection[db_name]
         feeds = db.feeds
         valid_feeds = feeds.find(
                 {'url' : { '$exists' : True } },
-                {'url': 1, '_id': 0}
+                {'url': 1, '_id': 0, 'src': 1}
         )
     
-    return [obj.get('url') for obj in valid_feeds]
+    return [{'url': obj.get('url'), 'src': obj.get('src', '')} for obj in valid_feeds]
 
 @app.task
-def insert_feed(feed_data, connection_params=None, db_name='audio'):
+def insert_feed(feed_data, connection_params=None):
     '''
     Add feed to Mongo Collection
     args:
@@ -55,6 +56,7 @@ def insert_feed(feed_data, connection_params=None, db_name='audio'):
         )
     '''
     c = utils.MongoDBConnection()
+    db_name = os.environ.get('MONGO_DB')
     with c:
         db = c.connection[db_name]
         feeds = db.feeds
@@ -65,14 +67,14 @@ def insert_feed(feed_data, connection_params=None, db_name='audio'):
             pass
 
 @app.task
-def get_recent_episodes(connection_params=None, db_name='audio', delta_min=60):
+def get_recent_episodes(connection_params=None, delta_days=30):
     '''
     Query Mongo and get record of episodes recently added to the episodes collection
     args:
         connection_params: dict: corresponds to Mongo auth. 
             Contains: host, username, password, authSource (i.e. dbname)
         db_name: str: db to connect to
-        delta_min: int: NOTE: Please Remove Ideally here we will check 
+        delta_min: int: NOTE: Ideally here we will check 
             all episodes "since last execution of `call_update_episode_stash.s()`"
     returns:
         list[dict]: list of dict containg target urls + alias
@@ -85,32 +87,36 @@ def get_recent_episodes(connection_params=None, db_name='audio', delta_min=60):
         return {
             'url': d.get('enclosure'),
             'alias': pod_title, 
-            'src': d.get('source_feed', 'misc')
+            'src': d.get('src', 'misc')
         }
 
-    # Query Episodes ingested in last N-Minutes by using ObjectID date property
-    # See NOTE in Docstring...
-    qry_lower_bnd = (datetime.datetime.now() - datetime.timedelta(minutes=delta_min))
-    qry_id = ObjectId.from_datetime(qry_lower_bnd)
+    # Query Episodes ingested in last N-Minutes by using ObjectID date property - See NOTE in Docstring...
+    # Also...could use `$setOnInsert: { dateAdded: new Date() }` to avoid this arithmatic :(
+    
+    pub_date_lwr_bnd = (datetime.datetime.now() - datetime.timedelta(days=delta_days))
 
     c = utils.MongoDBConnection()
+    db_name = os.environ.get('MONGO_DB')
     with c:
         db = c.connection[db_name]
         episodes = db.episodes
         
         recent_episodes = episodes.find(
                 {"enclosure" : { '$exists' : True },
-                "_id" : { '$gte' : qry_id }},
+                "pubDate" : { '$gte' : pub_date_lwr_bnd }},
+                {"_id": 0, "title": 1, "enclosure": 1, "src": 1}
         )
     
     return [parse_src_entry(obj) for obj in recent_episodes]
 
 @app.task(ignore_result=True)
-def insert_episodes_data(target_url, connection_params=None, db_name='audio'):
+def insert_episodes_data(feed_data, connection_params=None):
     '''
     Add Episodes to Mongo Collection
     args:
-        target_url: str: path to RSS feed public address
+        feed_data:dict:
+            url: str: path to RSS feed public address
+            title: str: feed name
         connection_params: dict: corresponds to Mongo auth. 
             Contains: host, username, password, authSource (i.e. dbname)
         db_name: str: db to connect to
@@ -122,10 +128,11 @@ def insert_episodes_data(target_url, connection_params=None, db_name='audio'):
             {unique:true}
         )
     '''
-    f = utils.parse_rss_feed(target_url)
+    f = utils.parse_rss_feed(feed_data)
     ids = []
 
     c = utils.MongoDBConnection()
+    db_name = os.environ.get('MONGO_DB')
     with c:
         db = c.connection[db_name]
         episodes = db.episodes
@@ -133,7 +140,9 @@ def insert_episodes_data(target_url, connection_params=None, db_name='audio'):
         # Single insert performance > batch insert, almost all feeds 
         # fail batch insert on dupl key error and fall back to single inserts
         for ep in f:
-            try: 
+            try:
+                # Handle Date, yuck...fix
+                ep['pubDate'] = date_parse(ep.get('pubDate', str(datetime.datetime.now())))
                 _id = episodes.insert_one(ep).inserted_id
                 ids.append(_id)
             except pymongo.errors.DuplicateKeyError: #Ignore Dupl
@@ -149,7 +158,7 @@ def download_response(self, episode_data):
         episode_data:
             url: str: download target's URL
             alias: str: download target's local filename
-            data_dir: str: download target's local directory
+            data_dir: str: download target's local directory (feed name)
     '''
     url, alias, src = episode_data.get('url', ''), episode_data.get('alias'), episode_data.get('src')
     
@@ -168,7 +177,8 @@ def download_response(self, episode_data):
                    shutil.copyfileobj(r.raw, f)
 
     except Exception as exc:
-        # overrides the default delay to retry after 1 minute
+        raise exc
+        # overrides the default delay && retry after 1 minute
         raise self.retry(exc=exc, countdown=60, max_retries=3)
 
 # Master Scheduled Tasks

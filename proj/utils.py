@@ -5,17 +5,21 @@ from urllib.parse import quote_plus
 import requests
 from lxml.etree import QName
 from pymongo import MongoClient
+from datetime import datetime
 
-def parse_rss_feed(url):
+def parse_rss_feed(feed_data):
     '''
     Parse RSS Feed and return list of dicts (documents) for Mongo
     args:
-        url: str: target RSS feed
+        feed_data: dict:
+            url: str: target RSS feed
+            src: str: optional title
     returns:
         outp: list[dict]: All .//channel/item attribute from XML as 
         list of dictionary
     '''
-    r = requests.get(url)
+    
+    r = requests.get(feed_data.get('url'))
     try: 
         r.raise_for_status()
     except requests.exceptions.HTTPError as e: 
@@ -23,12 +27,17 @@ def parse_rss_feed(url):
 
     root = ET.fromstring(r.content)
     
-    feed_title_elem = root.find('.//channel/title') 
-    feed_title = feed_title_elem.text if feed_title_elem is not None else None
+    if not feed_data.get('src'):
+        # Search for title of feed if not passed by user - If fails...then None
+        feed_title_elem = root.find('.//channel/title') 
+        feed_title = feed_title_elem.text if feed_title_elem is not None else None
+    else:
+        feed_title = feed_data.get('src')
 
     outp = []
     for obj in root.findall('.//channel/item'):
-        d = {'source_feed': feed_title}
+        
+        d = {'src': feed_title}
         for elem in list(obj):
             if not elem.text:
                 alt_value = elem.get('url') or elem.get('href')                
@@ -41,7 +50,7 @@ def parse_rss_feed(url):
 
 class MongoDBConnection(object):
     """
-    Create connection with MongoDB as contextmanager
+    Create connection with MongoDB as contextmanager, from: <STACK OVERFLOW URL>
     args:
         connection_params: dict: corresponds to Mongo auth. 
             Contains: host, username, password, authSource (i.e. dbname)
@@ -54,9 +63,9 @@ class MongoDBConnection(object):
         if not params: # NOTE: Default Connection for Now...
             params = {
                 'host': 'backend',
-                'username': os.environ.get('MONGO_USER'),
-                'password': os.environ.get('MONGO_USER_PW'),
-                'authSource': os.environ.get('MONGO_AUTH_SRC_DB')
+                'username': os.environ.get('MONGO_WORKER'),
+                'password': os.environ.get('MONGO_WORKER_PW'),
+                'authSource': os.environ.get('MONGO_DB')
             }
         self.params = params
         self.connection = None
