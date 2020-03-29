@@ -6,5 +6,5 @@ COPY ./proj ./proj
 RUN CFLAGS=-O0 pip3 install --no-cache-dir -r ./proj/requirements.txt  
 
 #Comment out to Debug, run single node in container w: 
-ENTRYPOINT ["celery", "-A", "proj",  "worker", "-l", "info", "--app=proj.celery_cfg", "-Q=default,downloads", "--pool=gevent", "--concurrency=10"]
+ENTRYPOINT ["celery", "-A", "proj",  "worker", "-l", "info", "--app=proj.celery_cfg", "-Q=default,downloads", "--pool=gevent", "--concurrency=50"]
 
