@@ -19,8 +19,9 @@ services:
     build: ./
     tty: true
     volumes:
-      - "/mediaES:/rss_library"
-      - "./proj:/proj"
+      - "/mediaES:/rss_library" # Data Mount
+      - "./proj:/proj" # Working
+      - "./logs/celery:/var/logs/celery" # Logs
     env_file:
       - ./mongo/worker_setup_vars.env
     depends_on:
