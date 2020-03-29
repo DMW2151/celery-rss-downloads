@@ -36,7 +36,7 @@ def setup_periodic_tasks(sender, **kwargs):
     
     # Check Feeds Every 1 mins - Update Sets
     sender.add_periodic_task(
-        300.0, call_update_episode_stash.s(),
+        600.0, call_update_episode_stash.s(),
     )
 
     # Download Every 1 mins - Update Sets; cannot use 5s offset to `update_episode_stash()` 
