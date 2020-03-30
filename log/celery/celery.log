@@ -1,0 +1,35 @@
+[2020-03-30 07:24:41,223: CRITICAL/MainProcess] Unrecoverable error: LockFailed("[Errno 2] No such file or directory: '/var/run/celery/celery.pid'")
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 149, in acquire
+    self.write_pid()
+  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 216, in write_pid
+    pidfile_fd = os.open(self.path, PIDFILE_FLAGS, PIDFILE_MODE)
+FileNotFoundError: [Errno 2] No such file or directory: '/var/run/celery/celery.pid'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/celery/worker/worker.py", line 205, in start
+    self.blueprint.start(self)
+  File "/usr/local/lib/python3.7/site-packages/celery/bootsteps.py", line 115, in start
+    self.on_start()
+  File "/usr/local/lib/python3.7/site-packages/celery/apps/worker.py", line 127, in on_start
+    WorkController.on_start(self)
+  File "/usr/local/lib/python3.7/site-packages/celery/worker/worker.py", line 154, in on_start
+    self.pidlock = create_pidlock(self.pidfile)
+  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 258, in create_pidlock
+    pidlock = _create_pidlock(pidfile)
+  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 268, in _create_pidlock
+    pidlock.acquire()
+  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 151, in acquire
+    reraise(LockFailed, LockFailed(str(exc)), sys.exc_info()[2])
+  File "/usr/local/lib/python3.7/site-packages/vine/five.py", line 194, in reraise
+    raise value.with_traceback(tb)
+  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 149, in acquire
+    self.write_pid()
+  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 216, in write_pid
+    pidfile_fd = os.open(self.path, PIDFILE_FLAGS, PIDFILE_MODE)
+celery.platforms.LockFailed: [Errno 2] No such file or directory: '/var/run/celery/celery.pid'
+[2020-03-30 07:29:50,663: INFO/MainProcess] Connected to mongodb://rss_backend_1:27017/jobs
+[2020-03-30 07:29:50,730: INFO/MainProcess] celery@405859ee49fc ready.
+[2020-03-30 07:29:50,771: INFO/MainProcess] pidbox: Connected to mongodb://rss_backend_1:27017/jobs.

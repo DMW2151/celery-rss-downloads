@@ -67,7 +67,7 @@ def insert_feed(feed_data, connection_params=None):
             pass
 
 @app.task
-def get_recent_episodes(connection_params=None, delta_days=30):
+def get_recent_episodes(connection_params=None, delta_days=90):
     '''
     Query Mongo and get record of episodes recently added to the episodes collection
     args:

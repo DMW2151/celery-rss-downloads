@@ -5,13 +5,7 @@ COPY ./proj ./proj
 
 RUN CFLAGS=-O0 pip3 install --no-cache-dir -r ./proj/requirements.txt  
 
-ENTRYPOINT [
-    "celery", "-A", "proj",  "worker", "-l", "info", 
-    "--app=proj.celery_cfg", 
-    "--queues=default,downloads", 
-    "--pool=gevent", 
-    "--concurrency=50",
-    "--pidfile=/var/run/celery/%n.pid",
-    "--logfile=/var/log/celery/%n%I.log"
-]
+RUN mkdir var/log/celery /var/run/celery
+
+ENTRYPOINT ["celery", "-A", "proj",  "worker", "-l", "info", "--app=proj.celery_cfg", "--queues=default,downloads", "--pool=gevent", "--concurrency=50", "--pidfile=/var/run/celery/%n.pid", "--logfile=/var/log/celery/%n%I.log"]
 

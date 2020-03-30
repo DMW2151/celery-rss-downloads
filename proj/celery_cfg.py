@@ -36,14 +36,14 @@ def setup_periodic_tasks(sender, **kwargs):
     
     # Check Feeds Every 1 mins - Update Sets
     sender.add_periodic_task(
-        600.0, call_update_episode_stash.s(),
+        60.0, call_update_episode_stash.s(),
     )
 
     # Download Every 1 mins - Update Sets; cannot use 5s offset to `update_episode_stash()` 
     # to allow it time to run b/c timedelta is not serializable w. json.
     # Set task to run every XXs ¯\_(ツ)_/¯
     sender.add_periodic_task(
-        300.0, call_get_new_episodes.s(),
+        30.0, call_get_new_episodes.s(),
     )
 
 @app.task

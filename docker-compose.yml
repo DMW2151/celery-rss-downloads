@@ -21,7 +21,7 @@ services:
     volumes:
       - "/mediaES:/rss_library" # Data Mount
       - "./proj:/proj" # Working
-      - "./logs/celery:/var/logs/celery" # Logs
+      - "./log/celery:/var/log/celery" # Logs
     env_file:
       - ./mongo/worker_setup_vars.env
     depends_on:
