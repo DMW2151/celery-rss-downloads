@@ -1,6 +1,8 @@
 import os
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
+import logging
+
 
 app = Flask(__name__)
 
@@ -41,4 +43,6 @@ def add_feed():
         
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+
+    logging.basicConfig(filename='error.log',level=logging.DEBUG)
+    app.run(debug=True, host='0.0.0.0')

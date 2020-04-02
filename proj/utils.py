@@ -23,9 +23,12 @@ def parse_rss_feed(feed_data):
     try: 
         r.raise_for_status()
     except requests.exceptions.HTTPError as e: 
-        pass
+        pass #pls log
 
-    root = ET.fromstring(r.content)
+    try:
+        root = ET.fromstring(r.content)
+    except ET.ParseError: # return null
+        return [] #pls log
     
     if not feed_data.get('src'):
         # Search for title of feed if not passed by user - If fails...then None

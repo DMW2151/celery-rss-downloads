@@ -2,4 +2,5 @@
 .DS_Store
 /proj/__pycache__
 /env
+/log/*
 /mongo/*.env

@@ -1,35 +1,107 @@
-[2020-03-30 07:24:41,223: CRITICAL/MainProcess] Unrecoverable error: LockFailed("[Errno 2] No such file or directory: '/var/run/celery/celery.pid'")
+[2020-04-02 02:55:08,616: WARNING/MainProcess] /usr/local/lib/python3.7/site-packages/dateutil/parser/_parser.py:1206: UnknownTimezoneWarning: tzname PDT identified but not understood.  Pass `tzinfos` argument in order to correctly return a timezone-aware datetime.  In a future version, this will raise an exception.
+  category=UnknownTimezoneWarning)
+[2020-04-02 02:55:09,532: ERROR/MainProcess] Task proj.tasks.insert_episodes_data[9dca82d8-0bf5-47c8-b37a-fa46ede9d656] raised unexpected: ParseError('mismatched tag: line 211, column 2')
 Traceback (most recent call last):
-  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 149, in acquire
-    self.write_pid()
-  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 216, in write_pid
-    pidfile_fd = os.open(self.path, PIDFILE_FLAGS, PIDFILE_MODE)
-FileNotFoundError: [Errno 2] No such file or directory: '/var/run/celery/celery.pid'
-
-During handling of the above exception, another exception occurred:
-
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 385, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 650, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/proj/tasks.py", line 131, in insert_episodes_data
+    f = utils.parse_rss_feed(feed_data)
+  File "/proj/utils.py", line 28, in parse_rss_feed
+    root = ET.fromstring(r.content)
+  File "/usr/local/lib/python3.7/xml/etree/ElementTree.py", line 1315, in XML
+    parser.feed(text)
+  File "<string>", line None
+xml.etree.ElementTree.ParseError: mismatched tag: line 211, column 2
+[2020-04-02 02:55:10,280: WARNING/MainProcess] /usr/local/lib/python3.7/site-packages/dateutil/parser/_parser.py:1206: UnknownTimezoneWarning: tzname PST identified but not understood.  Pass `tzinfos` argument in order to correctly return a timezone-aware datetime.  In a future version, this will raise an exception.
+  category=UnknownTimezoneWarning)
+[2020-04-02 03:05:05,727: ERROR/MainProcess] Task proj.tasks.insert_episodes_data[8087ad45-36f4-4745-a9da-fa8a639b42a6] raised unexpected: ParseError('mismatched tag: line 211, column 2')
 Traceback (most recent call last):
-  File "/usr/local/lib/python3.7/site-packages/celery/worker/worker.py", line 205, in start
-    self.blueprint.start(self)
-  File "/usr/local/lib/python3.7/site-packages/celery/bootsteps.py", line 115, in start
-    self.on_start()
-  File "/usr/local/lib/python3.7/site-packages/celery/apps/worker.py", line 127, in on_start
-    WorkController.on_start(self)
-  File "/usr/local/lib/python3.7/site-packages/celery/worker/worker.py", line 154, in on_start
-    self.pidlock = create_pidlock(self.pidfile)
-  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 258, in create_pidlock
-    pidlock = _create_pidlock(pidfile)
-  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 268, in _create_pidlock
-    pidlock.acquire()
-  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 151, in acquire
-    reraise(LockFailed, LockFailed(str(exc)), sys.exc_info()[2])
-  File "/usr/local/lib/python3.7/site-packages/vine/five.py", line 194, in reraise
-    raise value.with_traceback(tb)
-  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 149, in acquire
-    self.write_pid()
-  File "/usr/local/lib/python3.7/site-packages/celery/platforms.py", line 216, in write_pid
-    pidfile_fd = os.open(self.path, PIDFILE_FLAGS, PIDFILE_MODE)
-celery.platforms.LockFailed: [Errno 2] No such file or directory: '/var/run/celery/celery.pid'
-[2020-03-30 07:29:50,663: INFO/MainProcess] Connected to mongodb://rss_backend_1:27017/jobs
-[2020-03-30 07:29:50,730: INFO/MainProcess] celery@405859ee49fc ready.
-[2020-03-30 07:29:50,771: INFO/MainProcess] pidbox: Connected to mongodb://rss_backend_1:27017/jobs.
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 385, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 650, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/proj/tasks.py", line 131, in insert_episodes_data
+    f = utils.parse_rss_feed(feed_data)
+  File "/proj/utils.py", line 28, in parse_rss_feed
+    root = ET.fromstring(r.content)
+  File "/usr/local/lib/python3.7/xml/etree/ElementTree.py", line 1315, in XML
+    parser.feed(text)
+  File "<string>", line None
+xml.etree.ElementTree.ParseError: mismatched tag: line 211, column 2
+[2020-04-02 03:15:05,576: ERROR/MainProcess] Task proj.tasks.insert_episodes_data[edd15c20-0898-49f6-a1cf-5c328a6bffc9] raised unexpected: ParseError('mismatched tag: line 211, column 2')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 385, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 650, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/proj/tasks.py", line 131, in insert_episodes_data
+    f = utils.parse_rss_feed(feed_data)
+  File "/proj/utils.py", line 28, in parse_rss_feed
+    root = ET.fromstring(r.content)
+  File "/usr/local/lib/python3.7/xml/etree/ElementTree.py", line 1315, in XML
+    parser.feed(text)
+  File "<string>", line None
+xml.etree.ElementTree.ParseError: mismatched tag: line 211, column 2
+[2020-04-02 03:25:07,463: ERROR/MainProcess] Task proj.tasks.insert_episodes_data[df0215f1-a89d-4623-87d6-4a01f910464e] raised unexpected: ParseError('mismatched tag: line 211, column 2')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 385, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 650, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/proj/tasks.py", line 131, in insert_episodes_data
+    f = utils.parse_rss_feed(feed_data)
+  File "/proj/utils.py", line 28, in parse_rss_feed
+    root = ET.fromstring(r.content)
+  File "/usr/local/lib/python3.7/xml/etree/ElementTree.py", line 1315, in XML
+    parser.feed(text)
+  File "<string>", line None
+xml.etree.ElementTree.ParseError: mismatched tag: line 211, column 2
+[2020-04-02 03:35:06,552: ERROR/MainProcess] Task proj.tasks.insert_episodes_data[c1e370b5-b01b-459a-8122-a562415c6ba5] raised unexpected: ParseError('mismatched tag: line 211, column 2')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 385, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 650, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/proj/tasks.py", line 131, in insert_episodes_data
+    f = utils.parse_rss_feed(feed_data)
+  File "/proj/utils.py", line 28, in parse_rss_feed
+    root = ET.fromstring(r.content)
+  File "/usr/local/lib/python3.7/xml/etree/ElementTree.py", line 1315, in XML
+    parser.feed(text)
+  File "<string>", line None
+xml.etree.ElementTree.ParseError: mismatched tag: line 211, column 2
+[2020-04-02 03:45:07,546: ERROR/MainProcess] Task proj.tasks.insert_episodes_data[4bc8d263-79b3-472d-a5bb-2940654f7304] raised unexpected: ParseError('mismatched tag: line 211, column 2')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 385, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 650, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/proj/tasks.py", line 131, in insert_episodes_data
+    f = utils.parse_rss_feed(feed_data)
+  File "/proj/utils.py", line 28, in parse_rss_feed
+    root = ET.fromstring(r.content)
+  File "/usr/local/lib/python3.7/xml/etree/ElementTree.py", line 1315, in XML
+    parser.feed(text)
+  File "<string>", line None
+xml.etree.ElementTree.ParseError: mismatched tag: line 211, column 2
+[2020-04-02 03:55:05,253: ERROR/MainProcess] Task proj.tasks.insert_episodes_data[c7a1e0cd-9fbb-4b2e-8a9e-d779f946eb63] raised unexpected: ParseError('mismatched tag: line 211, column 2')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 385, in trace_task
+    R = retval = fun(*args, **kwargs)
+  File "/usr/local/lib/python3.7/site-packages/celery/app/trace.py", line 650, in __protected_call__
+    return self.run(*args, **kwargs)
+  File "/proj/tasks.py", line 131, in insert_episodes_data
+    f = utils.parse_rss_feed(feed_data)
+  File "/proj/utils.py", line 28, in parse_rss_feed
+    root = ET.fromstring(r.content)
+  File "/usr/local/lib/python3.7/xml/etree/ElementTree.py", line 1315, in XML
+    parser.feed(text)
+  File "<string>", line None
+xml.etree.ElementTree.ParseError: mismatched tag: line 211, column 2
+[2020-04-02 04:21:23,068: WARNING/MainProcess] /usr/local/lib/python3.7/site-packages/dateutil/parser/_parser.py:1206: UnknownTimezoneWarning: tzname PDT identified but not understood.  Pass `tzinfos` argument in order to correctly return a timezone-aware datetime.  In a future version, this will raise an exception.
+  category=UnknownTimezoneWarning)
+[2020-04-02 04:21:25,021: WARNING/MainProcess] /usr/local/lib/python3.7/site-packages/dateutil/parser/_parser.py:1206: UnknownTimezoneWarning: tzname PST identified but not understood.  Pass `tzinfos` argument in order to correctly return a timezone-aware datetime.  In a future version, this will raise an exception.
+  category=UnknownTimezoneWarning)
+[2020-04-02 04:31:48,067: WARNING/MainProcess] Restoring 2 unacknowledged message(s)
